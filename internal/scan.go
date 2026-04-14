@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"golang.org/x/term"
 )
@@ -20,24 +21,24 @@ const (
 type scanner struct {
 	tabs int
 	tabW int
+	show bool
 }
 
-func newScanner(width int) *scanner {
+func NewScanner(showHidden bool) (*scanner, error) {
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		return nil, fmt.Errorf("Unable to run f: %s", err)
+	}
+
 	tabs := width / defaultWidth
 	tabw := width / tabs
 	tabs -= 1
 
-	s := scanner{tabs: tabs, tabW: tabw}
-	return &s
+	s := scanner{tabs: tabs, tabW: tabw, show: showHidden}
+	return &s, nil
 }
 
-func Scan() error {
-	width, _, err := term.GetSize(int(os.Stdout.Fd()))
-	if err != nil {
-		return fmt.Errorf("Unable to run f: %s", err)
-	}
-	s := newScanner(width)
-
+func (s *scanner) Scan() error {
 	var i int = 0
 
 	return filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
@@ -48,10 +49,11 @@ func Scan() error {
 			i += 1
 			return nil
 		}
-		// TODO: ignore hidden files
-		// TODO: add flag -a to show all files
 		if strings.Count(path, string(os.PathSeparator)) > 0 {
 			return fs.SkipDir // reading only current directory (working with depth = 0)
+		}
+		if s.isHidden(path) {
+			return nil
 		}
 
 		rString := s.toRuneColumn(path)
@@ -80,6 +82,28 @@ func Scan() error {
 		i += 1
 		return nil
 	})
+}
+
+func (s *scanner) isHidden(path string) bool {
+	if s.show {
+		return false
+	}
+
+	// is hidden on linux
+	linux := path[0] == '.'
+
+	// is hidden on windows
+	pointer, err := syscall.UTF16PtrFromString(path)
+	if err != nil {
+		return linux
+	}
+	attr, err := syscall.GetFileAttributes(pointer)
+	if err != nil {
+		return linux
+	}
+	windows := attr&syscall.FILE_ATTRIBUTE_HIDDEN != 0
+
+	return linux || windows
 }
 
 func (s *scanner) toRuneColumn(str string) []rune {

@@ -3,7 +3,9 @@
 **f** - is a little cli tool for listting files in current directory.
 It's small, simple and easy to use (just run `f`), and written without any 3rd party dependencies
 
-## Example
+## Usage
+
+Run `f` to list files. Add `-a` flag to show hidden files
 
 ![example](github/example.png)
 
