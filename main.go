@@ -1,0 +1,243 @@
+package main
+
+import (
+	"fmt"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"strings"
+
+	"golang.org/x/term"
+)
+
+const defaultWidth = 18
+
+const (
+	reset = "\033[0m"
+	cyan  = "\033[36m"
+)
+
+func main() {
+	width, _, err := term.GetSize(int(os.Stdout.Fd()))
+	if err != nil {
+		panic(fmt.Errorf("Unable to run f: %s", err))
+	}
+	tabs := width / defaultWidth
+	tabW := width / tabs
+	tabs -= 1
+
+	var i int = 0
+
+	err = filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if i == 0 {
+			i += 1
+			return nil // skipping '.' directory
+		}
+		if strings.Count(path, string(os.PathSeparator)) > 0 {
+			return fs.SkipDir // reading only current directory
+		}
+
+		rString := []rune(path)
+		if len(rString) >= tabW {
+			rString = rString[:tabW-5]
+			rString = append(rString, []rune("...  ")...)
+		} else {
+			amout := tabW - len(rString)
+			space := strings.Repeat(" ", amout)
+			rString = append(rString, []rune(space)...)
+		}
+
+		color := reset
+		var icon string
+		if info.IsDir() {
+			color = cyan
+			if i, ok := folderIcons[info.Name()]; ok {
+				icon = i
+			} else {
+				icon = " " // default dir icon
+			}
+		} else {
+			if i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
+				icon = i
+			} else {
+				icon = " " // defautl file icon
+			}
+		}
+
+		fmt.Printf("%s%s%s", color, icon, string(rString))
+		if i%tabs == 0 {
+			fmt.Println()
+		}
+		i += 1
+		return nil
+	})
+
+	if err != nil {
+		fmt.Print(err)
+	}
+}
+
+var fileIcons map[string]string = map[string]string{
+	".asm":            " ",
+	".awk":            " ",
+	".bash":           " ",
+	".bash_aliases":   " ",
+	".bash_profile":   " ",
+	".bash_history":   " ",
+	".bashrc":         " ",
+	".bin":            " ",
+	".bmp":            " ",
+	".bz":             " ",
+	".bz2":            " ",
+	".c":              " ",
+	".class":          " ",
+	".conf":           " ",
+	".cfg":            " ",
+	".cp":             " ",
+	".cpp":            " ",
+	".css":            " ",
+	".csv":            " ",
+	".dart":           " ",
+	".db":             "",
+	".deb":            " ",
+	".doc":            " ",
+	".docx":           " ",
+	".ejs":            " ",
+	".el":             " ",
+	".emacs":          " ",
+	".eot":            " ",
+	".epub":           " ",
+	".erb":            " ",
+	".ex":             " ",
+	".exs":            " ",
+	".fish":           " ",
+	".fs":             " ",
+	".fsi":            " ",
+	".fsx":            " ",
+	".gif":            " ",
+	".git":            " ",
+	".gitattributes":  " ",
+	".gitconfig":      " ",
+	".gitignore":      " ",
+	".gitmodules":     " ",
+	".go":             " ",
+	".gz":             " ",
+	".gvimrc":         " ",
+	".hex":            " ",
+	".h":              " ",
+	".hpp":            " ",
+	".hs":             " ",
+	".htm":            " ",
+	".html":           " ",
+	".ini":            " ",
+	".inputrc":        " ",
+	".ipynb":          " ",
+	".jad":            " ",
+	".java":           " ",
+	".jar":            " ",
+	".jpeg":           " ",
+	".jpg":            " ",
+	".js":             " ",
+	".json":           " ",
+	".kt":             "󰜪 ",
+	".kts":            "󰜪 ",
+	".latex":          " ",
+	"LICENSE":         " ",
+	".log":            " ",
+	".lua":            " ",
+	".lz":             " ",
+	".lrz":            " ",
+	".md":             " ",
+	".mk":             " ",
+	"Makefile":        " ",
+	".make":           " ",
+	".mp3":            " ",
+	".mp4":            " ",
+	".org":            " ",
+	".otf":            " ",
+	".pdf":            " ",
+	".patch":          " ",
+	".perl":           " ",
+	".php":            " ",
+	".pl":             " ",
+	".png":            " ",
+	".ppt":            " ",
+	".pptx":           " ",
+	".ps1":            " ",
+	".ps1d":           " ",
+	".py":             " ",
+	".python_history": " ",
+	".r":              " ",
+	".ru":             " ",
+	".rar":            " ",
+	".rdata":          " ",
+	".rs":             " ",
+	".rds":            " ",
+	".rlib":           " ",
+	".rmd":            " ",
+	".sass":           " ",
+	".scss":           " ",
+	".scala":          " ",
+	".sh":             " ",
+	".sql":            " ",
+	".sv":             "󰍛 ",
+	".svg":            " ",
+	".swift":          " ",
+	".tar":            " ",
+	".taz":            " ",
+	".tbz":            " ",
+	".tbz2":           " ",
+	".tgz":            " ",
+	".tex":            " ",
+	".tcl":            " ",
+	".toml":           " ",
+	".ts":             " ",
+	".ttf":            " ",
+	".txt":            " ",
+	".tz":             " ",
+	".tzo":            " ",
+	".txz":            " ",
+	".v":              "󰘚 ",
+	".vhd":            "󰘚 ",
+	".vhdl":           "󰘚 ",
+	".vim":            " ",
+	".viminfo":        " ",
+	".vimrc":          " ",
+	".xul":            " ",
+	".woff":           " ",
+	".woff2":          " ",
+	".xml":            " ",
+	".xhtml":          " ",
+	".xls":            " ",
+	".xlsx":           " ",
+	".xz":             " ",
+	".yml":            " ",
+	".yaml":           " ",
+	".zip":            " ",
+	".zsh":            " ",
+	".zshrc":          " ",
+	".zst":            " ",
+}
+
+var folderIcons map[string]string = map[string]string{
+	"Pictures":  "\033[1;96m󰉏 ",
+	"Downloads": "\033[1;96m󰉍 ",
+	".git":      "\033[1;31m ",
+	".ssh":      "\033[1;96m󰢬 ",
+	"Music":     "\033[1;96m󱍙 ",
+	"Desktop":   "\033[1;96m ",
+	".vscode":   "\033[0;35m󰨞 \033[1m",
+	".config":   "\033[1;96m ",
+	"config":    "\033[1;96m ",
+	"configs":   "\033[1;96m ",
+	"bin":       "\033[1;96m ",
+	"github":    "\033[1;37m ",
+	"Github":    "\033[1;37m ",
+	".github":   "\033[1;37m ",
+	"GitHub":    "\033[1;37m ",
+	"Videos":    "\033[1;96m󰃽 ",
+	".cache":    "\033[1;96m󰴌 ",
+}
