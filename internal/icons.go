@@ -126,6 +126,8 @@ var fileIcons map[string]string = map[string]string{
 	".vim":            " ",
 	".viminfo":        " ",
 	".vimrc":          " ",
+	"_viminfo":        " ",
+	"_vimrc":          " ",
 	".xul":            " ",
 	".woff":           " ",
 	".woff2":          " ",

@@ -68,8 +68,10 @@ func (s *scanner) Scan() error {
 				icon = " " // default directory icon
 			}
 		} else {
-			if i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
-				icon = i
+			if i, ok := fileIcons[info.Name()]; ok {
+				icon = i // files without extations
+			} else if i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
+				icon = i // files with extations
 			} else {
 				icon = " " // defautl file icon
 			}
