@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"golang.org/x/term"
 )
@@ -22,19 +21,20 @@ type scanner struct {
 	tabs int
 	tabW int
 	show bool
+	Deny bool
 }
 
 func NewScanner(showHidden bool) (*scanner, error) {
 	width, _, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
-		return nil, fmt.Errorf("Unable to run f: %s", err)
+		return nil, fmt.Errorf("Unable to run 'f': %s", err)
 	}
 
 	tabs := width / defaultWidth
 	tabw := width / tabs
 	tabs -= 1
 
-	s := scanner{tabs: tabs, tabW: tabw, show: showHidden}
+	s := scanner{tabs: tabs, tabW: tabw, show: showHidden, Deny: false}
 	return &s, nil
 }
 
@@ -43,6 +43,10 @@ func (s *scanner) Scan() error {
 
 	return filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {
+			if os.IsPermission(err) {
+				s.Deny = true
+				return nil
+			}
 			return err
 		}
 		if i == 0 { // skipping '.' directory
@@ -68,14 +72,16 @@ func (s *scanner) Scan() error {
 				icon = " " // default directory icon
 			}
 		} else {
-			if i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
+			if i, ok := fileIcons[info.Name()]; ok {
+				icon = i
+			} else if i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
 				icon = i
 			} else {
 				icon = " " // defautl file icon
 			}
 		}
-
 		fmt.Printf(" %s%s%s", color, icon, string(rString))
+
 		if i%s.tabs == 0 {
 			fmt.Println()
 		}
@@ -89,21 +95,9 @@ func (s *scanner) isHidden(path string) bool {
 		return false
 	}
 
-	// is hidden on linux
-	linux := path[0] == '.'
+	hidden := path[0] == '.'
 
-	// is hidden on windows
-	pointer, err := syscall.UTF16PtrFromString(path)
-	if err != nil {
-		return linux
-	}
-	attr, err := syscall.GetFileAttributes(pointer)
-	if err != nil {
-		return linux
-	}
-	windows := attr&syscall.FILE_ATTRIBUTE_HIDDEN != 0
-
-	return linux || windows
+	return hidden
 }
 
 func (s *scanner) toRuneColumn(str string) []rune {
