@@ -32,7 +32,14 @@ func NewScanner(showHidden bool) (*scanner, error) {
 
 	tabs := width / defaultWidth
 	tabw := width / tabs
-	tabs -= 1
+
+	// Fixin borders
+	//
+	//  # foobar     # qwerty
+	// ^^^          ^^^
+	//
+	// ' ', icon, ' ' - 3 runes
+	tabw -= 3
 
 	s := scanner{tabs: tabs, tabW: tabw, show: showHidden, Deny: false}
 	return &s, nil
