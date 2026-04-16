@@ -14,7 +14,7 @@ const defaultWidth = 18
 
 const (
 	reset = "\033[0m"
-	cyan  = "\033[36m"
+	dir   = "\033[1;36m"
 )
 
 type scanner struct {
@@ -72,17 +72,17 @@ func (s *scanner) Scan() error {
 		color := reset
 		var icon string
 		if info.IsDir() {
-			color = cyan
-			if i, ok := folderIcons[info.Name()]; ok {
-				icon = i
+			color = dir
+			if _i, ok := folderIcons[info.Name()]; ok {
+				icon = _i
 			} else {
 				icon = " " // default directory icon
 			}
 		} else {
-			if i, ok := fileIcons[info.Name()]; ok {
-				icon = i
-			} else if i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
-				icon = i
+			if _i, ok := fileIcons[info.Name()]; ok {
+				icon = _i
+			} else if _i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
+				icon = _i
 			} else {
 				icon = " " // defautl file icon
 			}
