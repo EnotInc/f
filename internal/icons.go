@@ -26,6 +26,7 @@ var fileIcons map[string]string = map[string]string{
 	".deb":              "\033[31m " + reset,
 	".doc":              "\033[34m " + reset,
 	".docx":             "\033[34m " + reset,
+	".dude":             "\033[90m " + reset,
 	".ejs":              "\033[33m " + reset,
 	".el":               "\033[35m " + reset,
 	".emacs":            "\033[35m " + reset,

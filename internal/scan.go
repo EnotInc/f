@@ -108,10 +108,19 @@ func (s *scanner) isHidden(path string) bool {
 }
 
 func (s *scanner) toRuneColumn(str string) []rune {
+	if strings.Contains(str, " ") {
+		str = fmt.Sprintf("'%s'", str)
+	}
 	rString := []rune(str)
+
+	end := func(rs []rune) []rune {
+		rs = rs[:s.tabW-5]
+		rs = append(rs, []rune("...  ")...)
+		return rs
+	}
+
 	if len(rString) > s.tabW-2 { // tab width - space between columns
-		rString = rString[:s.tabW-5]                  // removing both the last 3 runes and 2 space symbols
-		rString = append(rString, []rune("...  ")...) // adding '...' and returning the spaces
+		rString = end(rString)
 	} else {
 		amout := s.tabW - len(rString)
 		space := strings.Repeat(" ", amout)
