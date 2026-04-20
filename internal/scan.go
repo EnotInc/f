@@ -88,18 +88,25 @@ func (s *scanner) Scan() error {
 
 		color := reset
 		var icon string
+
+		name := info.Name()
+		lower := strings.ToLower(name)
+
 		if info.IsDir() {
 			color = dir
-			if _i, ok := folderIcons[info.Name()]; ok {
+			if _i, ok := folderIcons[name]; ok {
+				icon = _i
+			} else if _i, ok := folderIcons[lower]; ok {
 				icon = _i
 			} else {
 				icon = " " // default directory icon
 			}
 		} else {
-			name := strings.ToLower(info.Name())
 			if _i, ok := fileIcons[name]; ok {
 				icon = _i
 			} else if _i, ok := fileIcons[filepath.Ext(name)]; ok {
+				icon = _i
+			} else if _i, ok := fileIcons[filepath.Ext(lower)]; ok {
 				icon = _i
 			} else {
 				icon = " " // defautl file icon
