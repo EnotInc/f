@@ -16,10 +16,14 @@ func main() {
 	}
 
 	var all bool = false
+	var path bool = false
+
 	flag.BoolVar(&all, "a", false, "show all files")
+	flag.BoolVar(&path, "p", false, "show path")
+
 	flag.Parse()
 
-	s, err := internal.NewScanner(all)
+	s, err := internal.NewScanner(all, path)
 	exitIf(err)
 
 	err = s.Scan()

@@ -5,7 +5,9 @@ It's small, simple and easy to use (just run `f`), and written without any 3rd p
 
 ## Usage
 
-Run `f` to list files. Add `-a` flag to show hidden files
+Run `f` to list files, you can use flags to change the behavior:
+1. `-a` - show hidden files ('dot' files)
+2. `-p` - show path to the current directory
 
 ![example](github/example.png)
 

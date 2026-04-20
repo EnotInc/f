@@ -21,10 +21,11 @@ type scanner struct {
 	tabs int
 	tabW int
 	show bool
+	path bool
 	Deny bool
 }
 
-func NewScanner(showHidden bool) (*scanner, error) {
+func NewScanner(showHidden bool, path bool) (*scanner, error) {
 	width, _, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		return nil, fmt.Errorf("Unable to run 'f': %s", err)
@@ -41,12 +42,28 @@ func NewScanner(showHidden bool) (*scanner, error) {
 	// ' ', icon, ' ' - 3 runes
 	tabw -= 3
 
-	s := scanner{tabs: tabs, tabW: tabw, show: showHidden, Deny: false}
+	s := scanner{
+		tabs: tabs,
+		tabW: tabw,
+		show: showHidden,
+		path: path,
+		Deny: false,
+	}
+
 	return &s, nil
 }
 
 func (s *scanner) Scan() error {
 	var i int = 0
+
+	if s.path {
+		dir, err := os.Getwd()
+		if err != nil {
+			fmt.Printf(" \033[33mWARRNING:\033[0m Unable to get path: %s\n", err)
+		} else {
+			fmt.Printf("[\033[34m%s\033[0m]\n", dir)
+		}
+	}
 
 	return filepath.Walk(".", func(path string, info fs.FileInfo, err error) error {
 		if err != nil {

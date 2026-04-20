@@ -36,6 +36,7 @@ var fileIcons map[string]string = map[string]string{
 	".erb":              "\033[31m " + reset,
 	".ex":               "\033[35m " + reset,
 	".exs":              "\033[35m " + reset,
+	".exe":              "\033[31m " + reset,
 	".fish":             "\033[32m " + reset,
 	".fs":               "\033[34m " + reset,
 	".fsi":              "\033[34m " + reset,
