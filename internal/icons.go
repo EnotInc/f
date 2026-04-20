@@ -163,9 +163,7 @@ var folderIcons map[string]string = map[string]string{
 	"configs":      "\033[1;96m ",
 	"bin":          "\033[1;96m ",
 	"github":       "\033[1;36m ",
-	"Github":       "\033[1;36m ",
 	".github":      "\033[1;36m ",
-	"GitHub":       "\033[1;36m ",
 	"Videos":       "\033[1;95m󰃽 ",
 	".cache":       "\033[1;96m󰴌 ",
 	".chant":       "\033[1;33m󰝱 ", // Oh, you don't know what 'chant' is? This is just a little cli tool that I've been working on... :)

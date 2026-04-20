@@ -96,9 +96,10 @@ func (s *scanner) Scan() error {
 				icon = " " // default directory icon
 			}
 		} else {
-			if _i, ok := fileIcons[info.Name()]; ok {
+			name := strings.ToLower(info.Name())
+			if _i, ok := fileIcons[name]; ok {
 				icon = _i
-			} else if _i, ok := fileIcons[filepath.Ext(info.Name())]; ok {
+			} else if _i, ok := fileIcons[filepath.Ext(name)]; ok {
 				icon = _i
 			} else {
 				icon = " " // defautl file icon
